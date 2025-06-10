@@ -10,12 +10,12 @@
 
 using namespace std;
 
-// ×Ó½ø³Ì£¨¶ÁÈ¡½ø³Ì£©
+// å­è¿›ç¨‹ï¼ˆè¯»å–è¿›ç¨‹ï¼‰
 void child_process()
 {
     char buf[1024] = {0};
 
-    // ´ò¿ªÓĞÃû¹ÜµÀÒÔ¶ÁÈ¡
+    // æ‰“å¼€æœ‰åç®¡é“ä»¥è¯»å–
     int fd = open(FIFO_PATH, O_RDONLY);
     if (fd == -1)
     {
@@ -23,7 +23,7 @@ void child_process()
         exit(EXIT_FAILURE);
     }
 
-    // ¶ÁÈ¡Êı¾İ
+    // è¯»å–æ•°æ®
     ssize_t bytes_read = read(fd, buf, sizeof(buf) - 1);
     if (bytes_read == -1)
     {
@@ -35,10 +35,10 @@ void child_process()
     close(fd);
 }
 
-// ¸¸½ø³Ì£¨Ğ´Èë½ø³Ì£©
+// çˆ¶è¿›ç¨‹ï¼ˆå†™å…¥è¿›ç¨‹ï¼‰
 void parent_process()
 {
-    // ´ò¿ªÓĞÃû¹ÜµÀÒÔĞ´Èë
+    // æ‰“å¼€æœ‰åç®¡é“ä»¥å†™å…¥
     int fd = open(FIFO_PATH, O_WRONLY);
     if (fd == -1)
     {
@@ -46,7 +46,7 @@ void parent_process()
         exit(EXIT_FAILURE);
     }
 
-    // Ğ´ÈëÊı¾İ
+    // å†™å…¥æ•°æ®
     const char *message = "Hello from parent process!";
     if (write(fd, message, strlen(message)) == -1)
     {
@@ -58,31 +58,31 @@ void parent_process()
 
 int main()
 {
-    // ´´½¨ÓĞÃû¹ÜµÀ
+    // åˆ›å»ºæœ‰åç®¡é“ï¼Œmkfifo()å‡½æ•°ä¼šåœ¨æ–‡ä»¶ç³»ç»Ÿä¸­åˆ›å»ºä¸€ä¸ªç‰¹æ®Šçš„æ–‡ä»¶
     if (mkfifo(FIFO_PATH, 0666) == -1)
     {
         perror("mkfifo");
         exit(EXIT_FAILURE);
     }
 
-    // ´´½¨×Ó½ø³Ì
+    // åˆ›å»ºå­è¿›ç¨‹
     pid_t pid = fork();
-    if (pid == -1)
+    if (pid < 0)
     {
         perror("fork");
         exit(EXIT_FAILURE);
     }
     if (pid == 0)
     {
-        // ×Ó½ø³Ì´úÂë
+        // å­è¿›ç¨‹ä»£ç 
         child_process();
     }
     else
     {
-        // ¸¸½ø³Ì´úÂë
+        // çˆ¶è¿›ç¨‹ä»£ç 
         parent_process();
 
-        // µÈ´ı×Ó½ø³Ì½áÊø ×Ó£¨¶Á£©ÏÈ¸¸£¨Ğ´£©ºó
+        // ç­‰å¾…å­è¿›ç¨‹ç»“æŸ å­ï¼ˆè¯»ï¼‰å…ˆçˆ¶ï¼ˆå†™ï¼‰å
         wait(NULL);
     }
 

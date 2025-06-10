@@ -74,7 +74,7 @@ int main()
         返回值：
             成功返回0，失败返回-1
     */
-    // 连接到服务器
+    // 发送连接请求到服务器（从这里触发TCP由内核来进行三次握手过程）
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         perror("连接到服务器失败");

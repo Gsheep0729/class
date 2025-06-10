@@ -1,4 +1,5 @@
 /*
+总结：套接字就是一个文件描述符，指向一个网络连接（通过ip地址和端口将两台主机连接），可以进行读写操作
 1.创建套接字 -> 初始化地址和端口 -> 绑定端口 -> 监听端口 -> 等待客户端连接
 2.接受客户端连接 -> 向客户端发送消息 -> 进入循环接收客户端消息
 3.判断是否收到退出信号（"T"） -> 如果是退出信号，跳出循环并关闭套接字
@@ -87,13 +88,16 @@ sockaddr结构体：
     socklen_t addrlen = sizeof(address);
     int new_socket;
 
-    // 接受连接
+    // 在内核三次握手完成后，建立连接，则进入accept函数进行连接
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen)) < 0)
     {
+        //  错误处理
         perror("连接失败");
         close(server_fd);
         exit(EXIT_FAILURE);
     }
+    /*此时连接成功后，accept()会创造一个新的socket用于连接客户，原来的socket仍然在等待客户连接，
+    好比你吃饭先跟前台定好位置，由服务员来接管后续的服务，前台会继续接客*/
 
     std::cout << "羔羊客户端连接成功！\n";
 
@@ -110,7 +114,7 @@ sockaddr结构体：
         int valread = read(new_socket, buffer, BUFFER_SIZE);
         std::cout << "从客户端收到消息： " << buffer << std::endl;
 
-        // 收到quit退出
+        // 收到T退出
         if (!strcmp(buffer, "T"))
         {
             break;
@@ -121,7 +125,7 @@ sockaddr结构体：
 
     // 关闭套接字
     close(new_socket);
-    close(server_fd);
+    close(server_fd);//最后关闭服务器套接字停止连接新用户
 
     return 0;
 }
