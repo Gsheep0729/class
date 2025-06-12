@@ -21,7 +21,8 @@ enum CMD
     FATHERDIR,    // 上一级目录
     SONDIR,       // 下一级目录
     QUIT_CLIENT,  // 关闭客户端通信
-    QUIT_SERVER   // 关闭服务器
+    QUIT_SERVER,   // 关闭服务器
+    CMD_NULL = 0 
 };
 
 // 数据包的结构体
@@ -128,5 +129,6 @@ bool readFile(int socket, Package *package, FILE *fp, pthread_mutex_t mutex);
  *      失败：false
  */
 bool readDir(int socket, Package *package);
+
 
 #endif

@@ -110,13 +110,14 @@ int createClient(const char *ipv4, int port)
  */
 bool sendPackage(int sock, Package *package)
 {
-    //发送包大小
+    //发送包大小，0表示无特殊发送标志（默认阻塞发送）
     int ret = send(sock, package, sizeof(*package), 0);
     if (ret == -1)
     {
         perror("sendPackage:发送失败");
         return false;
     }
+    //如果全部发送完毕，返回true
     return ret == sizeof(*package);
 
 }
@@ -173,7 +174,7 @@ FILE *getFp(Package *package, std::string filename, const char *mode)
 }
 
 /*
- * 功能：向文件中写入内容（将每个包中的 file 字段（字符串）写入本地文件）
+ * 功能：向文件中写入内容
  * 参数：
  *      sock：通信套接字
  *      package：接收的数据包

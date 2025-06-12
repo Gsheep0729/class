@@ -117,49 +117,50 @@ bool dealConnect(int clientSocket, int serverSocket, Package *package)
             break;
 
         default:
-            cout << "未知命令" << endl;
             return false;
     }
-
-    cout << "未知命令" << endl;
     return false;
 }
 
 /**
  * 子进程的任务
  */
-void process_main(int clientSocket, int serverSocket) // 类似于子进程的main函数
+void process_main(int clientSocket, int serverSocket, Package package) // 类似于子进程的main函数
 {
-
-    
-    while (1)
+    while (1)//一直循环让服务器待命
     {
-        Package package;
-        // 接收消息
-        int ret = recvPackage(clientSocket, &package);
-        if (ret > 0)// 接收成功
+        // 每次循环前先发送当前工作路径让客户端的页面显示更新
+        if (!sendPackage(clientSocket, &package))
         {
-            // 处理连接
-            dealConnect(clientSocket, serverSocket, &package);
-        }
-        else if (ret == 0)
-        {
-            cout << "通信已中断" << endl;
+            // 发送失败
+            cout << "发送路径失败，通信已中断" << endl;
             // 销毁互斥锁
             pthread_mutex_destroy(&mutex);
             // 关闭套接字
             close(clientSocket);
             // 关闭进程
-            exit(0);
+            exit(EXIT_FAILURE);//立即终止当前程序运行
+        }
+
+        // 每次循环都从客户端接收命令
+        if (recvPackage(clientSocket, &package) > 0)
+        {
+            // 如果接受到命令，则处理命令
+            if (dealConnect(clientSocket, serverSocket, &package))
+            {
+                cout << "--------处理命令成功-------" << endl;
+            }
+
+            //处理命令成功后，将命令置为NULL
+            package.cmd = CMD_NULL;
         }
         else
         {
-            cout << "接收消息失败" << endl;
+            cout << "********接受命令失败********" << endl;
+            break;
         }
-        if (package.errorCode  != 0)
-        {
-            cout << package.cmd  << ": " << "处理完成" << endl;
-        }
+
+        //检查是否断开
         if  (package.cmd == QUIT_CLIENT)// 客户端断开连接停止服务
         {
             break;
@@ -189,13 +190,14 @@ int main()
 
     Package package;
     
-    // 初始化结构体
-    memset(&package, 0, sizeof(package));  // 定义时始化结构体
+    // 定义时始化结构体
+    memset(&package, 0, sizeof(Package));
 
-    string currentDir = SERPath; // 初始下载目录
+    string currentDir = SERPath; // 使用一个变量来保存当前工作目录的信息
     // 初始化路径
     strncpy(package.path, currentDir.c_str(), MAX_FILE_PATH_SIZE - 1);
     package.path[MAX_FILE_PATH_SIZE - 1] = '\0';  // 确保终止符
+    cout << "初始化工作目录为：" << package.path << endl;
 
     int clientSocket = 0;
     // 等待客户端连接
@@ -204,7 +206,7 @@ int main()
         // 记录客户端信息
         struct sockaddr_in address;
         socklen_t len = sizeof(address);
-        cout << "等待连接" << endl;
+        cout << "等待客户端连接..." << endl;
         // 阻塞等待，在serverSocket上监听客户端连接，成功时保存客户端地址到address
         clientSocket = accept(serverSocket, (struct sockaddr *)&address, &len);
         if (clientSocket < 0)
@@ -219,10 +221,9 @@ int main()
         if (pid == 0) // 子进程
         {
             cout << "客户端连接成功--子进程" << endl;
-            // 发送初始化信息
-            sendPackage(clientSocket, &package);
+
             // 子进程负责处理连接
-            process_main(clientSocket, serverSocket);
+            process_main(clientSocket, serverSocket,package);
         }
         else if (pid > 0) // 父进程
         {

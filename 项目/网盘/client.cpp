@@ -45,10 +45,10 @@ void getDealResult(int socket, Package *package)
             if (package->errorCode != 0)
             {
                 // 处理错误
-                cout << endl <<"处理完成" <<  endl;
+                cout << endl <<"ls处理完成" <<  endl;
                 break;
             }
-            cout << package->name << endl;
+            cout << package->name << " ";
         }
         else if (ret == 0)
         {
@@ -82,11 +82,11 @@ bool deals(int socket, Package *package)
     // LS命令
     package->errorCode = 0;//使用前再初始化一次，防止重复时的错误
     package->cmd = LS;
-    sendPackage(socket, package);
-    cout << "客户端发送的路径: " << package->path << endl; // 调试输出
-    // 发送客户端的套接字和路径（包里）
-    std::cout << "发送成功" << std::endl;
-    cout << "等待处理结果" << endl;
+    if (!sendPackage(socket, package))
+    {
+        cout << "发送命令失败" << endl;
+        return false;
+    }
     // 获取处理结果
     getDealResult(socket, package);
     return true;
@@ -280,16 +280,22 @@ int main()
     cout << "客户端创建成功" << endl;
 
     Package package;
-    // 初始化结构体
-    memset(&package, 0, sizeof(package));  // 定义时始化结构体
-    recvPackage(socket, &package);
-    string currentDir = package.path;
+    // 定义时始化结构体
+    memset(&package, 0, sizeof(Package));
 
     while (1)
     {
+        //每次打印菜单前先接受服务端的路径包以打印菜单（此时包只含工作路径）
+        if (recvPackage(socket, &package) <= 0)
+        {
+            cout << "接受服务端路径包失败" << endl;
+            exit(EXIT_FAILURE);//立即终止当前程序运行
+        }
+        string currentDir = package.path;
         printMenu(currentDir);
         int choice;
-        cin >> choice;
+
+        cin >> choice;//输入的同时阻塞
 
         switch (choice)
         {
