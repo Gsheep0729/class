@@ -51,6 +51,8 @@
         "iterator": "cpp",
         "numeric": "cpp",
         "random": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "codecvt": "cpp",
+        "ratio": "cpp"
     }
 }

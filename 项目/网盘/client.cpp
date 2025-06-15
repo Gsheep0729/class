@@ -42,13 +42,14 @@ void getDealResult(int socket, Package *package)
         int ret = recvPackage(socket, package);
         if (ret > 0)
         {
-            if (package->errorCode != 0)
+            if (package->errorCode == 1)
             {
-                // 处理错误
-                cout << endl <<"ls处理完成" <<  endl;
+                // 完成标志
+                cout << endl;
                 break;
             }
-            cout << package->name << " ";
+            else if (package->errorCode == 0)
+            cout << package->name << " 、 ";
         }
         else if (ret == 0)
         {
@@ -73,8 +74,9 @@ void getDealResult(int socket, Package *package)
     }
     // 清空 package 的 file 字段，以便后续请求时不会残留旧数据
     memset(package->file, 0, MAX_FILE_SIZE);
+    package->errorCode = 0;
+    package->cmd = CMD_NULL;
 }
-
 
 
 bool deals(int socket, Package *package)
@@ -97,12 +99,17 @@ bool dealUpload(int socket, Package *package)
 {
     /*上传客户端文件到服务器：输入本地指定路径文件，然后上传至服务器工作目录下 */
     package->cmd = UPLOAD;
+    if (!sendPackage(socket, package))
+    {
+        cout << "发送UPLOAD命令失败" << endl;
+        return false;
+    }
 
     string localFilePath = "";
     cout << "请输入要上传的本地文件完整路径: " << endl;
     cin >> localFilePath;
 
-    // 检查文件是否存在
+    // 检查本地要上传的文件是否存在
     FILE *fp = fopen(localFilePath.c_str(), "r");
     if (!fp)
     {
@@ -111,7 +118,7 @@ bool dealUpload(int socket, Package *package)
     }
     fclose(fp);
 
-    // 获取文件名
+    // 获取本地要上传的文件名
     string fileName = localFilePath.substr(localFilePath.find_last_of("/\\") + 1);
 
     // 设置package.name为文件名
@@ -122,115 +129,143 @@ bool dealUpload(int socket, Package *package)
     fp = getFp(package, localFilePath, "r");
     if (!fp)
     {
+        cout << "上传打开文件失败" << endl;
         return false;
     }
 
+    //  发送本地要上传的文件名
     sendPackage(socket, package);
+
     return readFile(socket, package, fp, mutex);
 }
 
 bool dealDownload(int socket, Package *package)
 {
-    /*下载服务器端文件到客户端：输入服务器文件名称，然后下载到客户端制定目录下  */
     package->cmd = DOWNLOAD;
+    if (!sendPackage(socket, package))
+    {
+        cout << "发送命令失败" << endl;
+        return false;
+    }
 
     string fileName = "";
     cout << "请输入要下载的服务器文件名: " << endl;
     cin >> fileName;
 
-    // string savePath = "";
-    // cout << "请输入文件保存的本地路径: " << endl;
-    // cin >> savePath;
-
-    // 设置文件名
+    // 设置package.name为要下载的文件名
     strncpy(package->name, fileName.c_str(), MAX_FILE_NAME_SIZE - 1);
     package->name[MAX_FILE_NAME_SIZE - 1] = '\0';
 
-    sendPackage(socket, package);
-
-    getDealResult(socket, package);
-    if (package->errorCode != 0)
+    // 发送要下载的文件名
+    if (!sendPackage(socket, package))
     {
-        cout << "下载文件失败:" << strerror(package->errorCode) << endl;
+        cout << "发送要下载的文件名失败" << endl;
         return false;
     }
 
-    // // 创建保存目录（如果不存在）
-    // struct stat st = {0};
-    // if (stat(savePath.c_str(), &st) == -1)
-    // {
-    //     mkdir(savePath.c_str(), 0700);
-    // }
+    // 生成客户端保存文件的路径
+    string filePath = string(CLIPATH) + "/" + fileName;
+    string uniquePath = generateUniqueFilename(filePath); // 自动处理重命名
 
-    // // 完整保存路径
-    // string fullSavePath = savePath + "/" + fileName;
-
-    FILE *fp = getFp(package, CLIPATH, "w");
+    // 打开文件准备写入
+    FILE *fp = getFp(package, uniquePath, "w");
     if (!fp)
     {
+        cout << "下载打开文件失败" << endl;
         return false;
     }
-
-    return writeFile(socket, package, fp, mutex);
+    
+    bool success = writeFile(socket, package, fp, mutex);
+    
+    if (success)
+    {
+        //下载成功后显示文件路径
+        cout << "文件下载成功！保存路径: " << uniquePath << endl;
+    }
+    
+    return success;
 }
 
 bool dealFatherDir(int socket, Package *package, string &currentDir)
 {
-    // FATHERDIR命令
-    package->cmd = FATHERDIR;
-
-    if (currentDir == "/")
-    {
+    // 参数校验
+    if (!package) {
+        cout << "无效的 package 指针" << endl;
         return false;
     }
-    // 找到字符ch最后一次出现的位置
-    int lastPos = currentDir.find_last_of('/');
-    // 如果找到了字符ch
-    if (lastPos != std::string::npos)
-    {
-        // 只有一层目录 如/home 保留/
-        if (lastPos == 0)
-        {
-            currentDir = currentDir.substr(0, lastPos + 1);
-        }
-        else
-        {
-            // 返回从字符串开始到字符ch最后一次出现位置（包含该位置）的子字符串
-            currentDir = currentDir.substr(0, lastPos);
-        }
+
+    // 设置命令并发送
+    package->cmd = FATHERDIR;
+    package->errorCode = 4;
+    if (!sendPackage(socket, package)) {
+        cout << "发送FATHERDIR命令失败" << endl;
+        // 恢复 package 状态
+        package->cmd = CMD_NULL;
+        return false;
     }
-    // 修改服务器路径
-    strcpy(package->path, currentDir.c_str());
-    return sendPackage(socket, package);
+    if (recvPackage(socket, package)<= 0)
+    {
+        cout << "服务器未响应...请重新再试" << endl;
+        // 恢复 package 状态
+        package->cmd = CMD_NULL;
+        return false;
+    }
+    else
+    {
+        //接受响应
+        if (package->errorCode == 0)
+        {
+            return true;
+        }
+        else if(package->errorCode == -1)
+        {
+            cout << "已经是根目录咯～～" << endl;
+            return false;
+        }
+        
+
+    }
+    return false;
+
 }
 
 bool dealSonDir(int socket, Package *package, string &currentDir)
 {
+    
     // SONDIR命令
     package->cmd = SONDIR;
+    if (!sendPackage(socket, package))
+    {
+        return false;
+    }
 
     string pathName = "";
     std::cout << "请输入子目录名: " << endl;
     std::cin >> pathName;
 
-    string tmp_dir = currentDir;
-    tmp_dir += "/" + pathName;
+    // 将要进入的子目录名存入package->name
+    strncpy(package->name, pathName.c_str(), MAX_FILE_NAME_SIZE - 1);
+    package->name[MAX_FILE_NAME_SIZE - 1] = '\0';
 
-    // 修改服务器路径
-    strcpy(package->path, tmp_dir.c_str());
-
-    sendPackage(socket, package);
-    getDealResult(socket, package);
-    if (package->errorCode != 0)
-    {
-        cout << "进入子目录失败: " << strerror(package->errorCode) << endl;
-        // 将当前目录改回
-        strcpy(package->path, currentDir.c_str());
+    // 发送子目录名
+    if (!sendPackage(socket, package)) {
+        cout << "发送子目录名失败" << endl;
         return false;
     }
+
+    // 接收服务器响应（包含新路径）
+    recvPackage(socket, package);
+
+    if (package->errorCode != 0)
+    {
+        cout << "进入子目录失败: " << package->errorCode << endl;
+        return false;
+    }
+
     // 进入子目录成功，更新当前路径
-    package->errorCode = 0;
-    currentDir = tmp_dir;
+    currentDir = package->path;
+    cout << "已进入目录: " << currentDir << endl;
+    
     return true;
 }
 
@@ -323,6 +358,8 @@ int main()
         default:
             cout << "无效的选择，请重新输入" << endl;
         }
+        package.cmd = CMD_NULL;
+        package.errorCode = 0;
     }
 
     return 0;

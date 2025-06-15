@@ -11,7 +11,7 @@
 
 #define SERVER_IP "127.0.0.1"  // 服务器IP地址
 #define PORT 8088                   // 端口号
-#define SERPath "/home/gy/桌面" //  服务器默认工作目录
+#define SERPath "/home/gy/桌面/GY/linux程序设计" //  服务器默认工作目录
 
 // 定义互斥锁
 pthread_mutex_t mutex;
@@ -25,7 +25,7 @@ void task(void *data)
 {
     pid_t pid = *(pid_t *)data;
     waitpid(pid, NULL, 0);
-    std::cout << "连接进程:" << pid << "退出" << std::endl;
+    cout << "连接进程:" << pid << "退出" << std::endl;
 }
 
 //处理连接
@@ -38,72 +38,169 @@ bool dealConnect(int clientSocket, int serverSocket, Package *package)
     {
         // 查看当前目录下文件
         case LS:
+        {
             return readDir(clientSocket, package);
+        }
 
         // 上传文件
         case UPLOAD:
         {
             /*上传客户端文件到服务器：输入本地指定路径文件，然后上传至服务器工作目录下 */
-            std::string serverFilePath = std::string(get_current_dir_name()) + "/" + std::string(package->name);
-            FILE *serverFile = getFp(package, serverFilePath, "w+");
-            if (!serverFile)
+            // 获取服务器传来的文件名
+            if (recvPackage(clientSocket, package) <= 0)
             {
+                // 获取文件名失败
+                cout << "上传文件时获取文件名失败" << endl;
                 return false;
             }
-            return writeFile(clientSocket, package, serverFile, mutex);
+            else
+            {
+                // 获取文件名成功
+                string filePath = string(package->path) + "/" + string(package->name);
+                string uniquePath = generateUniqueFilename(filePath); // 自动处理重命名
+    
+                FILE *file = getFp(package, uniquePath, "w"); // 使用新路径创建文件
+                if (!file) return false; // 创建失败
+                cout << "上传的文件名为：" << uniquePath << endl;
+
+                return writeFile(clientSocket, package, file, mutex);
+            }
         }
 
         // 下载文件
         case DOWNLOAD:
         {
-            /*下载服务器端文件到客户端：输入服务器文件名称，然后下载到客户端制定目录下*/
-            std::string filePath = std::string(SERPath) + "/" + std::string(package->name);
-            FILE *file = getFp(package, filePath, "r");
-            if (!file)
+            /*下载服务器端文件到客户端：输入服务器文件名称，然后下载到客户端指定目录下*/
+            // 获取客户端传来的文件名
+            if (recvPackage(clientSocket, package) <= 0)
             {
+                // 获取文件名失败
+                cout << "下载文件时获取文件名失败" << endl;
                 return false;
             }
-            sendPackage(clientSocket, package);
-            if (!file)
+            else
             {
-                return false;
+                string filePath = std::string(package->path) + "/" + std::string(package->name);
+
+                if (access(filePath.c_str(), F_OK) == -1)
+                {
+                    perror("文件不存在");
+                    package->errorCode = errno;
+                    sendPackage(clientSocket, package);
+                    return false;
+                }
+
+                FILE *file = getFp(package, filePath, "r"); // 以只读模式打开文件
+                if (!file) return false; // 打开文件失败
+
+                return readFile(clientSocket, package, file, mutex);
             }
-            return readFile(clientSocket, package, file, mutex);
         }
 
         // 返回父目录
         case FATHERDIR:
-            if (chdir(package->path) < 0)
+        {
+            if (package->errorCode == 4)
             {
-                perror("返回父目录失败");
-                package->errorCode = errno;
-                sendPackage(clientSocket, package);
-                return false;
+                string currentDir = package->path;
+                if (currentDir == "/")
+                {
+                    package->errorCode = -1;
+                    sendPackage(clientSocket, package);
+                    return false;
+                }
+                // 找到字符'/'最后一次出现的位置
+                int lastPos = currentDir.find_last_of('/');
+                // 如果找到了字符'/'
+                if (lastPos != std::string::npos)
+                {
+                    // 只有一层目录 如/home 保留/
+                    if (lastPos == 0)
+                    {
+                        currentDir = currentDir.substr(0, lastPos + 1);
+                    }
+                    else
+                    {
+                        // 返回从字符串开始到字符ch最后一次出现位置（包含该位置）的子字符串
+                        currentDir = currentDir.substr(0, lastPos);
+                    }
+                }
+
+                // 修改服务器路径
+                if (strcpy(package->path, currentDir.c_str()) == 0)
+                {
+                    //返回路径失败
+                    return false;
+                }
+                else
+                {
+                    // 修改成功
+                    package->errorCode = 0;//成功时归位
+                    if (sendPackage(clientSocket, package))
+                    {
+                        return true;
+                    }
+                }
             }
-            package->errorCode = 0;
-            return true;
+        }
 
         // 进入子目录
         case SONDIR:
-            if (chdir(package->path) < 0)
+        {
+            // 接收客户端发送的子目录名
+            if (recvPackage(clientSocket, package) <= 0)
             {
-                perror("进入子目录失败");
-                package->errorCode = errno;
+            perror("接收子目录名失败");
+            return false;
+            }
+            cout << "发来的错误码： " << package->errorCode << endl;
+            
+            // 拼接新路径
+            string newPath = string(package->path) + "/" + package->name;
+            
+            // 验证路径是否存在且是目录
+            struct stat info;
+            if (stat(newPath.c_str(), &info) != 0)
+            {
+                perror("目录不存在");
+                package->errorCode = -401;  // 明确错误码
                 sendPackage(clientSocket, package);
                 return false;
             }
-            package->errorCode = 0;
-            sendPackage(clientSocket, package);
+            if (!S_ISDIR(info.st_mode))
+            {
+                package->errorCode = -402;  // 明确错误码
+                sendPackage(clientSocket, package);
+                return false;
+            }                     
+            
+            
+        
+            // 更新路径并返回给客户端
+            strncpy(package->path, newPath.c_str(), MAX_FILE_PATH_SIZE - 1);
+            package->path[MAX_FILE_PATH_SIZE - 1] = '\0';
+            package->errorCode = 0; // 成功标志
+        
+            if (!sendPackage(clientSocket, package))
+            {
+                cout << "发送新路径失败" << endl;
+                return false;
+            }
+            else cout << "发走的错误码： " << package->errorCode << endl;
             return true;
+}
 
         // 客户端断开连接
         case QUIT_CLIENT:
+        {
             pthread_mutex_destroy(&mutex);
             close(clientSocket);
             return true;
+        }
 
         // 关闭服务器
         case QUIT_SERVER:
+        {
             if (kill(getppid(), SIGTERM) == -1)
             {
                 perror("父进程终止失败");
@@ -115,19 +212,22 @@ bool dealConnect(int clientSocket, int serverSocket, Package *package)
             cout << "服务器关闭成功" << endl;
             exit(0);
             break;
+        }
 
         default:
+        {
             return false;
+        }
     }
-    return false;
 }
 
 /**
  * 子进程的任务
  */
-void process_main(int clientSocket, int serverSocket, Package package) // 类似于子进程的main函数
+void process_main(int clientSocket, int serverSocket, Package package)// 类似于子进程的main函数
 {
-    while (1)//一直循环让服务器待命
+    bool clientConnected = true; 
+    while (clientConnected)//一直循环让服务器待命
     {
         // 每次循环前先发送当前工作路径让客户端的页面显示更新
         if (!sendPackage(clientSocket, &package))
@@ -148,24 +248,35 @@ void process_main(int clientSocket, int serverSocket, Package package) // 类似
             // 如果接受到命令，则处理命令
             if (dealConnect(clientSocket, serverSocket, &package))
             {
-                cout << "--------处理命令成功-------" << endl;
+                cout << "--------处理命令"<<package.cmd<<"成功-------" << endl;
+
+                //处理命令成功后，将命令置为NULL
+                package.cmd = CMD_NULL;
+            }
+            else
+            {
+                cout << "########处理命令失败########" << endl;
             }
 
-            //处理命令成功后，将命令置为NULL
-            package.cmd = CMD_NULL;
         }
         else
         {
             cout << "********接受命令失败********" << endl;
-            break;
         }
 
-        //检查是否断开
+        //确保服务端是否还在连接
         if  (package.cmd == QUIT_CLIENT)// 客户端断开连接停止服务
         {
-            break;
+            cout << "客户端断开连接" << endl;
+            clientConnected = false;
         }
     }
+
+    // 线程退出时销毁互斥锁
+    pthread_mutex_destroy(&mutex);
+    // 关闭套接字
+    close(clientSocket);
+
 }
 
 int main()

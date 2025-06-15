@@ -7,7 +7,9 @@
 #include <string>
 #include <cstring>
 #include <dirent.h>
+#include <filesystem>
 using namespace std;
+namespace fs = std::filesystem;
 
 /*
  * 功能：创建服务器进入监听状态
@@ -174,7 +176,7 @@ FILE *getFp(Package *package, std::string filename, const char *mode)
 }
 
 /*
- * 功能：向文件中写入内容
+ * 功能：依次向文件中写入内容
  * 参数：
  *      sock：通信套接字
  *      package：接收的数据包
@@ -186,7 +188,7 @@ FILE *getFp(Package *package, std::string filename, const char *mode)
  */
 bool writeFile(int socket, Package *package, FILE *fp, pthread_mutex_t mutex)
 {
-    int size = 0;
+    int size = 0;//记录已写入的字节数
     pthread_mutex_lock(&mutex); // 加锁
     while (1)
     {
@@ -218,7 +220,7 @@ bool writeFile(int socket, Package *package, FILE *fp, pthread_mutex_t mutex)
 }
 
 /*
- * 功能：从文件中读取内容
+ * 功能：依次从文件中读取内容再发送
  * 参数：
  *      sock：通信套接字
  *      package：接收的数据包
@@ -230,7 +232,7 @@ bool writeFile(int socket, Package *package, FILE *fp, pthread_mutex_t mutex)
  */
 bool readFile(int socket, Package *package, FILE *fp, pthread_mutex_t mutex)
 {
-    int size = 0;
+    int size = 0;//用于存储每次读取的字节数
     pthread_mutex_lock(&mutex); // 加锁
     do
     {
@@ -317,6 +319,7 @@ bool readDir(int socket, Package *package)
         {
             strncpy(package->name, entry->d_name, MAX_FILE_NAME_SIZE - 1);
             package->name[MAX_FILE_NAME_SIZE - 1] = '\0';
+            package->errorCode = 0;
             if (!sendPackage(socket, package))//读取到一个文件就发送一个数据包
             {
                 closedir(dir);
@@ -325,7 +328,7 @@ bool readDir(int socket, Package *package)
         }
     }
     // 发送结束标志
-    package->errorCode = -1;
+    package->errorCode = 1;
     if (sendPackage(socket, package))
     cout  << "已发送文件列表" << endl;
 
@@ -333,4 +336,39 @@ bool readDir(int socket, Package *package)
 
 
     return true;
+}
+
+
+/*
+ * 功能：生成唯一的文件名
+ * 参数：
+ *       filePath：文件路径
+ * 返回值：
+ *       如果文件不存在，直接返回文件名（包括完整路径）
+ *       如果文件已存在，生成唯一的文件名（包括完整路径），并返回
+ *
+ */
+std::string generateUniqueFilename(const std::string& filePath)
+{
+    if (!fs::exists(filePath)) return filePath;
+    
+    std::string baseName = filePath;
+    std::string extension = "";
+    
+    size_t dotPos = filePath.rfind('.');
+    size_t slashPos = filePath.rfind('/');
+    if (dotPos != std::string::npos && dotPos > slashPos)
+    {
+        baseName = filePath.substr(0, dotPos);
+        extension = filePath.substr(dotPos);
+    }
+    
+    int count = 1;
+    std::string newFilePath;
+    do
+    {
+        newFilePath = baseName + "(" + std::to_string(count++) + ")" + extension;
+    } while (fs::exists(newFilePath));
+    
+    return newFilePath;
 }

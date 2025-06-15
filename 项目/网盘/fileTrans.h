@@ -8,21 +8,21 @@
 // 文件路径规模
 #define MAX_FILE_PATH_SIZE 128
 // 文件名规模
-#define MAX_FILE_NAME_SIZE 32
+#define MAX_FILE_NAME_SIZE 64
 // 文件规模
 #define MAX_FILE_SIZE 512
 
 // 命令类型
 enum CMD
 {
-    LS = 1,       // 查看文件列表
-    UPLOAD,       // 上传文件
-    DOWNLOAD,     // 下载文件
-    FATHERDIR,    // 上一级目录
-    SONDIR,       // 下一级目录
-    QUIT_CLIENT,  // 关闭客户端通信
-    QUIT_SERVER,   // 关闭服务器
-    CMD_NULL = 0 
+    LS = 1,          // 1查看文件列表
+    UPLOAD,          // 2上传文件
+    DOWNLOAD,        // 3下载文件
+    FATHERDIR,       // 4返回父目录
+    SONDIR,          // 5进入子目录
+    QUIT_CLIENT,     // 6关闭客户端通信
+    QUIT_SERVER,     // 7关闭服务器
+    CMD_NULL         // 8无效命令
 };
 
 // 数据包的结构体
@@ -30,7 +30,7 @@ typedef struct
 {
     CMD cmd;                     // 命令类型
     int errorCode;               // 命令执行的结果 0表示未完成或失败，1表示完成
-    char path[MAX_FILE_PATH_SIZE]; // 服务器工作路径
+    char path[MAX_FILE_PATH_SIZE]; // 用来传输服务器工作目录的路径
     char name[MAX_FILE_NAME_SIZE]; // 文件名字
     char file[MAX_FILE_SIZE];     // 文件内容
 } Package;
@@ -129,6 +129,17 @@ bool readFile(int socket, Package *package, FILE *fp, pthread_mutex_t mutex);
  *      失败：false
  */
 bool readDir(int socket, Package *package);
+
+/*
+ * 功能：生成唯一的文件名
+ * 参数：
+ *       filePath：文件路径
+ * 返回值：
+ *       如果文件不存在，直接返回文件名
+ *       如果文件已存在，生成唯一的文件名，并返回
+ *
+ */
+std::string generateUniqueFilename(const std::string& filePath);
 
 
 #endif
