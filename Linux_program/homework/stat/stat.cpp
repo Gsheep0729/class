@@ -5,13 +5,13 @@
 #include <string.h>
 
 /**
- * ´òÓ¡ÎÄ¼şÈ¨ÏŞ
- * ¸ù¾İÎÄ¼şµÄÄ£Ê½Î»£¬Êä³öÎÄ¼şÀàĞÍºÍÈ¨ÏŞĞÅÏ¢
- * mode ÎÄ¼şµÄÄ£Ê½Î»
+ * æ‰“å°æ–‡ä»¶æƒé™
+ * æ ¹æ®æ–‡ä»¶çš„æ¨¡å¼ä½ï¼Œè¾“å‡ºæ–‡ä»¶ç±»å‹å’Œæƒé™ä¿¡æ¯
+ * mode æ–‡ä»¶çš„æ¨¡å¼ä½
  */
 void print_perms(mode_t mode) {
     char type;
-    // ÅĞ¶Ï²¢ÉèÖÃÎÄ¼şÀàĞÍ
+    // åˆ¤æ–­å¹¶è®¾ç½®æ–‡ä»¶ç±»å‹
     if (S_ISREG(mode)) type = '-';
     else if (S_ISDIR(mode)) type = 'd';
     else if (S_ISCHR(mode)) type = 'c';
@@ -21,7 +21,7 @@ void print_perms(mode_t mode) {
     else if (S_ISSOCK(mode)) type = 's';
     else type = '?';
 
-    // ³õÊ¼»¯È¨ÏŞ×Ö·û´®Êı×é
+    // åˆå§‹åŒ–æƒé™å­—ç¬¦ä¸²æ•°ç»„
     char perms[10];
     perms[0] = (mode & S_IRUSR) ? 'r' : '-';
     perms[1] = (mode & S_IWUSR) ? 'w' : '-';
@@ -34,44 +34,44 @@ void print_perms(mode_t mode) {
     perms[8] = (mode & S_IXOTH) ? 'x' : '-';
     perms[9] = '\0';
 
-    // ´¦ÀíÌØÊâÈ¨ÏŞÎ»
+    // å¤„ç†ç‰¹æ®Šæƒé™ä½
     if (mode & S_ISUID) perms[2] = (perms[2] == 'x') ? 's' : 'S';
     if (mode & S_ISGID) perms[5] = (perms[5] == 'x') ? 's' : 'S';
     if (mode & S_ISVTX) perms[8] = (perms[8] == 'x') ? 't' : 'T';
 
-    // Êä³öÎÄ¼şÀàĞÍºÍÈ¨ÏŞĞÅÏ¢
+    // è¾“å‡ºæ–‡ä»¶ç±»å‹å’Œæƒé™ä¿¡æ¯
     printf("%c%s ", type, perms);
 }
 
 /**
- * Ö÷º¯Êı
- * ½ÓÊÜÃüÁîĞĞ²ÎÊı£¬»ñÈ¡²¢´òÓ¡ÎÄ¼şĞÅÏ¢
- * argc ²ÎÊı¸öÊı
- * argv ²ÎÊıÖ¸ÕëÊı×é
- * ³ÌĞòÍË³ö×´Ì¬
+ * ä¸»å‡½æ•°
+ * æ¥å—å‘½ä»¤è¡Œå‚æ•°ï¼Œè·å–å¹¶æ‰“å°æ–‡ä»¶ä¿¡æ¯
+ * argc å‚æ•°ä¸ªæ•°
+ * argv å‚æ•°æŒ‡é’ˆæ•°ç»„
+ * ç¨‹åºé€€å‡ºçŠ¶æ€
  */
 int main(int argc, char *argv[]) {
-    // ¼ì²éÃüÁîĞĞ²ÎÊı¸öÊı
+    // æ£€æŸ¥å‘½ä»¤è¡Œå‚æ•°ä¸ªæ•°
     if (argc != 2) {
         fprintf(stderr, "using like :%s <file>\n", argv[0]);
         return 1;
     }
 
-    // »ñÈ¡ÎÄ¼şĞÅÏ¢
+    // è·å–æ–‡ä»¶ä¿¡æ¯
     struct stat sb;
     if (stat(argv[1], &sb) == -1) {
         perror("stat");
         return 1;
     }
 
-    printf("×÷ÓÃ:È¨ÏŞ   Ó²Á´½ÓÊı ÓÃ»§×éID ÎÄ¼ş´óĞ¡    ĞŞ¸ÄÊ±¼ä ÎÄ¼şÃû\n");
-    // ¸ñÊ½»¯Êä³ö
+    printf("ä½œç”¨:æƒé™   ç¡¬é“¾æ¥æ•° ç”¨æˆ·ç»„ID æ–‡ä»¶å¤§å°    ä¿®æ”¹æ—¶é—´ æ–‡ä»¶å\n");
+    // æ ¼å¼åŒ–è¾“å‡º
     print_perms(sb.st_mode);
     printf("%5lu ", sb.st_nlink);
     printf("%5u %5u ", sb.st_uid, sb.st_gid);
     printf("%10lld ", (long long)sb.st_size);
 
-    // ¸ñÊ½»¯ĞŞ¸ÄÊ±¼ä
+    // æ ¼å¼åŒ–ä¿®æ”¹æ—¶é—´
     char mtime[20];
     strftime(mtime, 20, "%Y-%m-%d %H:%M", localtime(&sb.st_mtime));
     printf("%s %s\n", mtime, argv[1]);
