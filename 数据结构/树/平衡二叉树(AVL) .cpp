@@ -15,8 +15,8 @@ typedef struct TreeNode
 // 创建一个新的二叉树节点
 TreeNode *createNode(int value)
 {
-    // TreeNode* newNode = (TreeNode*)malloc(sizeof(TreeNode)); // 分配内存
-    TreeNode *newNode = new TreeNode; // 分配内存
+    // TreeNode* newNode = (TreeNode*)malloc(sizeof(TreeNode)); // malloc分配内存
+    TreeNode *newNode = new TreeNode; // new分配内存
     if (!newNode)
     {
         cout << "申请内存失败" << endl;
@@ -58,53 +58,54 @@ int maxHeight(TreeNode *a, TreeNode *b)
     return (a->height > b->height) ? a->height : b->height;
 }
 
-// 右旋
+// 左旋操作只涉及原根节点的右子树，以及原根节点的右子树的左子树位置变化
+void leftRotate(TreeNode **p_tree)
+{
+    // 1. 记录原根节点的右子树
+    TreeNode *rightTree = (*p_tree)->right;
+    // 2. 记录原右子树的左子树
+    TreeNode *rightTreeLeft = rightTree->left;
+
+    // 执行旋转操作
+    // 步骤1: 将原根节点变为右子树的左子节点
+    rightTree->left = *p_tree;
+    // 步骤2: 将原右子树的左子节点变为原根节点的右子节点
+    (*p_tree)->right = rightTreeLeft;
+
+    // 更新受影响节点的高度
+    // 原根节点高度需重新计算（原右子树的左子节点已改变）
+    (*p_tree)->height = maxHeight((*p_tree)->left, (*p_tree)->right) + 1;
+    // 原右子树节点高度需重新计算（新增了左子节点）
+    rightTree->height = maxHeight(rightTree->left, rightTree->right) + 1;
+
+    // 更新全局根节点指针
+    *p_tree = rightTree;
+}
+
+// 右旋操作只涉及原根节点的左子树，以及原根节点的左子树的右子树位置变化
 void rightRotate(TreeNode **p_tree)
 {
-    // 原根节点（0）的左子树（-3）
+    // 1. 记录原根节点的左子树
     TreeNode *leftTree = (*p_tree)->left;
-    // 左子树（-3）的右子树（-1）
+    // 2. 记录原左子树的右子树
     TreeNode *leftTreeRight = leftTree->right;
 
-    // 执行旋转
-    // 1. 将原根节点（0）变成左子树（-3）的右子树
+    // 执行旋转操作
+    // 步骤1: 将原根节点变为左子树的右子节点
     leftTree->right = *p_tree;
-    // 2. 将原来左子树（-3）的右子树（-1）变成原根节点（0）的左子树
+    // 步骤2: 将原左子树的右子节点变为原根节点的左子节点
     (*p_tree)->left = leftTreeRight;
 
-    // 更新高度，只有-3和0的高度受到影响
-    // 原根节点（0）高度受到影响
+    // 更新受影响节点的高度
+    // 原根节点高度需重新计算（原左子树的右子节点已改变）
     (*p_tree)->height = maxHeight((*p_tree)->left, (*p_tree)->right) + 1;
-    // 原根节点（0）的左子树（-3）高度受到影响
+    // 原左子树节点高度需重新计算（新增了右子节点）
     leftTree->height = maxHeight(leftTree->left, leftTree->right) + 1;
 
-    // 更新根节点
+    // 更新全局根节点指针
     *p_tree = leftTree;
 }
 
-// 左旋
-void leftRotate(TreeNode **p_tree)
-{
-    // 原根节点（0）的右子树（3）
-    TreeNode *rightTree = (*p_tree)->right;
-    // 右子树（3）的左子树（1）
-    TreeNode *rightTreeLeft = rightTree->left;
-
-    // 执行旋转
-    // 1. 将原根节点（0）变成右子树（3）的左子树
-    rightTree->left = *p_tree;
-    // 2. 将原来右子树（3）的左子树（1）变成原根节点（0）的右子树
-    (*p_tree)->right = rightTreeLeft;
-
-    // 更新高度
-    // 原根节点（0）高度受到影响
-    (*p_tree)->height = maxHeight((*p_tree)->left, (*p_tree)->right) + 1;
-    // 原根节点（0）的右子树（3）高度受到影响
-    rightTree->height = maxHeight(rightTree->left, rightTree->right) + 1;
-
-    // 更新根节点
-    *p_tree = rightTree;
-}
 
 // 获取节点的平衡因子
 int getBalance(TreeNode *p_tree)
@@ -384,7 +385,7 @@ int main()
 
     // 下列场景为RL型
     // 递归插入
-    insertNodeRec(&root, -3);
+    insertNodeRec(&root, 5);
     insertNodeRec(&root, 3);
     insertNodeRec(&root, 2);
     insertNodeRec(&root, 4);
