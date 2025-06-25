@@ -186,7 +186,7 @@ void insertNodeRec(TreeNode **root, int value)
     // LR
     else if (balance > 1 && value > (*root)->left->val)
     {
-        cout << "插入数字" <<value<< "后为LR型,进行右旋操作" << endl;
+        cout << "插入数字" <<value<< "后为LR型,先进行左旋再右旋操作" << endl;
         // 对被破坏节点的左孩子进行左旋
         leftRotate(&(*root)->left);
         // 右旋
@@ -196,7 +196,7 @@ void insertNodeRec(TreeNode **root, int value)
     // RL
     else if (balance < -1 && value <= (*root)->right->val)
     {
-        cout << "插入数字" <<value<< "后为RL型,进行左旋操作" << endl;
+        cout << "插入数字" <<value<< "后为RL型,进行右旋再左旋操作" << endl;
         // 对被破坏节点的右孩子进行右旋
         rightRotate(&(*root)->right);
         // 左旋
@@ -365,6 +365,12 @@ TreeNode* buildTreeFromPreorder(vector<int>& preorder, int& index, int min, int 
     root->left = buildTreeFromPreorder(preorder, index, min, val);
     // 右子树所有节点值必须大于当前根节点值
     root->right = buildTreeFromPreorder(preorder, index, val, max);
+
+    // 更新节点高度
+    root->height = maxHeight(root->left, root->right) + 1;
+    // 更新子树大小
+    updateSize(root);
+    
 
     return root;
 }
@@ -546,15 +552,20 @@ void indexDelete(TreeNode** root, int index)
 int main()
 {
     TreeNode *root = nullptr;
-    cout << "默认插入数组{1,2,3,5,7,8,9}" << endl;
-    insertNodeRec(&root, 1);
-    insertNodeRec(&root, 2);
-    insertNodeRec(&root, 3);//LL型
-    insertNodeRec(&root, 5);
-    insertNodeRec(&root, 7);
-    insertNodeRec(&root, 8);//RR型
-    insertNodeRec(&root, 9);
-    printTree(root);
+
+
+
+    // cout << "默认插入数组{1,2,3,5,7,8,9}" << endl;
+    // insertNodeRec(&root, 1);
+    // insertNodeRec(&root, 2);
+    // insertNodeRec(&root, 3);//LL型
+    // insertNodeRec(&root, 5);
+    // insertNodeRec(&root, 7);
+    // insertNodeRec(&root, 8);//RR型
+    // insertNodeRec(&root, 9);
+    // printTree(root);
+
+
 
     while (true)
     {
