@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex vs Grid</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container {
+            margin: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        h2 { margin-top: 0; }
+        
+        /* Flex布局容器 */
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background-color: #f0f8ff;
+            padding: 10px;
+        }
+        
+        /* Grid布局容器 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            background-color: #f0fff0;
+            padding: 10px;
+        }
+        
+        /* 共同的项目样式 */
+        .item {
+            background-color: #add8e6;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        
+        /* 特殊项目 */
+        .wide {
+            grid-column: span 2; /* Grid中跨2列 */
+        }
+    </style>
+</head>
+<body>
+    <h1>Flexbox vs Grid布局对比</h1>
+    
+    <div class="container">
+        <h2>1. Flexbox布局（一维）</h2>
+        <div class="flex-container">
+            <div class="item">项目1</div>
+            <div class="item">项目2</div>
+            <div class="item">项目3</div>
+            <div class="item">项目4</div>
+            <div class="item wide">项目5（宽项）</div>
+            <div class="item">项目6</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>2. Grid布局（二维）</h2>
+        <div class="grid-container">
+            <div class="item">项目1</div>
+            <div class="item">项目2</div>
+            <div class="item">项目3</div>
+            <div class="item">项目4</div>
+            <div class="item wide">项目5（宽项）</div>
+            <div class="item">项目6</div>
+        </div>
+    </div>
+</body>
+</html>

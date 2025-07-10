@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tlias智能学习辅助系统</title>
+    <style>
+        /* ######导航栏样式类###### */
+        .navbar {
+            background-color: #808080; /* 灰色背景 */
+            display: flex;              /* 启用 Flex 弹性布局 */
+            justify-content: space-between; /* 子元素左右对齐 */
+            padding: 10px;              /* 导航栏内边距 */
+            align-items: center;        /* 子元素垂直居中 */
+        }
+        .navbar h1 {
+            color: white;
+            margin: 0;                 /* 清除 h1 默认的上下外边距 */
+            font-weight: bold;         /* 文字加粗 */
+            /*设置字体*/
+            font-family: "楷体";
+        }
+        .navbar a {
+            color: white;              /* 链接文字颜色为白色 */
+             text-decoration: none;     /* 移除链接默认下划线 */
+        }
+
+
+
+        /*######表单布局######*/
+
+        /*元素*/
+        form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-form {
+            margin: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 6px;
+        }
+
+        /*
+         * 统一表单控件基础样式：
+         * 应用于文本输入框、下拉选择框和按钮
+         * 包含内边距、字号、边框和圆角设置
+         */
+        input[type="text"], select, button {
+            padding: 6px 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /*
+         * 按钮增强样式：
+         * 添加悬停交互反馈和基础背景色
+         * 通过渐变背景提升视觉层次
+         */
+        button {
+            cursor: pointer;
+            background-color: #f5f5f5;
+        }
+
+        /*
+         * 按钮悬停状态：
+         * 鼠标悬停时加深背景色
+         * 提供视觉反馈增强用户体验
+         */
+        button:hover {
+            background-color: #eee;
+        }
+
+
+
+        /* ######表格样式###### */
+        /* 定义基础表格容器样式 */
+        /* 设置宽度、居中对齐、边框合并和文本居中 */
+        .data-table {
+            width: 95%;
+            margin: 0 auto;
+            border-collapse: collapse;/* 合并边框*/
+            text-align: center;
+        }
+
+        /* 定义表格单元格基础样式 */
+        /* 统一边框和内边距设置 */
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+        }
+
+        /* 表头特殊样式 */
+        /* 设置浅灰背景和加粗字体 */
+        .data-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        /* 表格行悬停交互效果 */
+        /* 提升用户交互体验的浅色背景 */
+        .data-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* 头像图像样式 */
+        /* 圆形头像容器，包含尺寸、圆角和边框设置 */
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #eee;
+        }
+
+        /* 操作按钮基础样式 */
+        /* 统一操作链接的间距、装饰和基础形状 */
+        .operation a {
+            margin: 0 5px;
+            text-decoration: none;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        /* 编辑操作样式 */
+        /* 蓝色主题配色方案 */
+        .edit {
+            color: #0066cc;
+            background-color: #e6f2ff;
+        }
+
+        /* 删除操作样式 */
+        /* 红色警示配色方案 */
+        .delete {
+            color: #cc0000;
+            background-color: #ffe6e6;
+        }
+
+        /* 操作按钮悬停效果 */
+        /* 编辑/删除按钮的悬停状态样式 */
+        .edit:hover {
+            background-color: #cce5ff;
+        }
+
+        .delete:hover {
+            background-color: #ffcccc;
+        }
+
+
+        /* 底部版权区域样式 */
+        .footer {
+           background-color: #808080; /* 灰色背景 */
+           color: white;
+           text-align: center;
+           padding: 10px;
+           margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="navbar">
+        <h1>Tlias智能学习辅助系统</h1>
+        <a href="#">退出登录</a>
+    </div>
+
+    <!--
+      表单说明：
+      - action：提交地址（可替换为实际接口，如 /search）
+      - method：提交方式（GET/POST，根据需求调整）
+      - 清空按钮用 type="reset"，点击后重置表单内容
+    -->
+    <div class="search-form">
+        <form action="#" method="POST">
+           <label for="name">姓名：</label>
+           <input type="text" name="name" placeholder="请输入姓名">
+
+           <!--select下拉框默认显示 "请选择" 作为提示文本（未选择任何有效值）-->
+           <label for="gender">性别：</label>
+           <select id="gender" name="gender">
+               <option value="">请选择</option>
+               <option value="male">男</option>
+               <option value="female">女</option>
+           </select>
+
+           <!-- 职位选择下拉框 -->
+           <!-- 提供讲师/班主任/咨询师三种职位选项 -->
+           <!-- 默认显示"请选择"提示文本 -->
+           <label for="position">职位：</label>
+           <select id="position" name="position">
+               <option value="">请选择</option>
+               <option value="teacher">讲师</option>
+               <option value="manager">班主任</option>
+               <option value="consultant">咨询师</option>
+           </select>
+
+           <!-- 表单操作按钮 -->
+           <!-- 提交按钮：触发表单数据提交 -->
+           <!-- 重置按钮：清空所有表单字段内容 -->
+           <button type="submit">查询</button>
+           <button type="reset">清空</button>
+        </form>
+    </div>
+
+        <!-- 数据表格（含头像图标） -->
+        <table class="data-table">
+            <thead><!--设置表头-->
+                <tr>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>头像</th>
+                    <th>职位</th>
+                    <th>入职日期</th>
+                    <th>最后操作时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody><!-- 设置表体 -->
+                <tr><!-- 定义表格行 -->
+                    <td>羔羊</td> <!-- 标准单元格，显示文本内容 -->
+                    <td>女</td> <!-- 标准单元格，显示性别信息 -->
+                    <td>
+                        <!-- 图像单元格 -->
+                        <img src="img\面.jpg" alt="赵敏头像" class="avatar"> <!-- 嵌入头像图片 -->
+                    </td>
+                    <td>班主任</td> <!-- 标准单元格，显示职位信息 -->
+                    <td>2008-12-18</td> <!-- 标准单元格，显示出生日期 -->
+                    <td>2023-07-22 12:05:20</td> <!-- 标准单元格，显示操作时间 -->
+                    <td class="operation">
+                        <!-- 操作单元格 -->
+                        <a href="#" class="edit">编辑</a> <!-- 编辑操作链接 -->
+                        <a href="#" class="delete">删除</a> <!-- 删除操作链接 -->
+                    </td>
+                </tr>
+                <tr>
+                    <td>王璨</td>
+                    <td>男</td>
+                    <td><img src="img\面头.jpg" alt="风清扬头像" class="avatar"></td>
+                    <td>讲师</td>
+                    <td>2015-07-22</td>
+                    <td>2022-07-22 15:00:00</td>
+                    <td class="operation">
+                        <a href="#" class="edit">编辑</a>
+                        <a href="#" class="delete">删除</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>张三</td>
+                    <td>男</td>
+                    <td><img src="img\面头.jpg" alt="风清扬头像" class="avatar"></td>
+                    <td>讲师</td>
+                    <td>2015-07-22</td>
+                    <td>2022-07-22 15:00:00</td>
+                    <td class="operation">
+                        <a href="#" class="edit">编辑</a>
+                        <a href="#" class="delete">删除</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>李四</td>
+                    <td>男</td>
+                    <td><img src="img\面头.jpg" alt="风清扬头像" class="avatar"></td>
+                    <td>讲师</td>
+                    <td>2015-07-22</td>
+                    <td>2022-07-22 15:00:00</td>
+                    <td class="operation">
+                        <a href="#" class="edit">编辑</a>
+                        <a href="#" class="delete">删除</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>赵五</td>
+                    <td>男</td>
+                    <td><img src="img\面头.jpg" alt="风清扬头像" class="avatar"></td>
+                    <td>讲师</td>
+                    <td>2015-07-22</td>
+                    <td>2022-07-22 15:00:00</td>
+                    <td class="operation">
+                        <a href="#" class="edit">编辑</a>
+                        <a href="#" class="delete">删除</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 底部版权区域 -->
+    <div class="footer">
+        <p>&copy; 2024 Tlias智能学习辅助系统. 保留所有权利.</p>
+    </div>
+
+</body>
+</html>

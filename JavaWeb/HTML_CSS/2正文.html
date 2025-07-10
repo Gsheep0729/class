@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正文测试</title>
+    <style>
+        p {
+            /*行高*/
+           line-height: 2;
+           /*首行缩进5个字符*/
+           text-indent: 2em;
+        }
+
+        /*整体居中显示*/
+        #content_container{
+            width : 70%;
+            margin: auto;
+            margin: auto;
+            /*等价于： */ 
+            /*margin: 0 auto; */
+        }
+    </style>
+</head>
+<body>
+<div id="content_container"> 
+    <h1>视频测试</h1>
+    <!-- video视频属性
+         src: 视频地址
+         controls: 显示控制条
+         width: 视频宽度
+         height: 视频高度
+         （建议高度和宽度只设置一个，另一个会自适应缩放）
+            单位：
+                px ：像素
+                % ：百分比
+         
+
+ -->
+    <video src="video/右旋.mp4" controls="controls" width="50%"></video><br/>
+    <p><!--段落标签会自动换行，可省略段落标签<br/>-->
+    <b>我们学校来这边的人还蛮少的呀</b>，其实我蛮久以前就知道有这个网站了，只是一直忘记来这边写了，
+    哈哈哈哈，可惜我当时高考填志愿的时候还不知道有这个网站呜呜呜。
+    好的闲话不多说，正片开始，我们学校计算机类的分三个专业，1.计科，2.软工，3.智科。
+    我对于软工最熟悉，软工主要是分为c++和java两个方向，c++的话之后会学qt和嵌入式，
+    java的话就是服务端开发那套，但是只靠学校教的，肯定是毕业就完蛋，在我们学校的计算机学生，
+    如果想入职计算机，靠技术吃饭，没个前百分之20机会就很少了。实验室还是蛮少的，大部分还是得靠自学。
+    学习氛围的话，如果你参加实验室，还是很好的，如果没有，那就难说了。
+    计科的话相对课程要少一点，而且感觉本科毕业比软工就业质量要差一点，但是考研考公可能更有优势吧。计科就不分方向了，
+    大家学的都一样，学得杂一些。
+    智科我了解不多，就不评价了。
+    说句中肯的话，我感觉我们学校的环境，只要你肯努力，还是能找到不错的工作的，但是如果你打算学计算机，
+    如果能去理工类院校，还是去理工类院校，如果能去东部城市，还是去东部城市，
+    <strong>除非你以后打算留在重 &nbsp;&nbsp;&nbsp;&nbsp;庆</strong>，否则我们学校谈不上同分最好的选择（分数还是有点虚高的）。
+    </p>
+
+    <!-- audio音频属性
+         src: 音频地址
+         controls: 显示控制条
+     -->
+    <audio src="audio/花日（氛围版）.mp3" controls="controls"></audio><br/>
+    
+
+    <!--img图片属性
+        src: 图片地址
+        1.绝对路径
+            1.1 绝对磁盘路径：D:/JavaWeb/HTML_CSS/img/左旋.gif（实用性差）
+            1.2 绝对网络盘路径：https://www.bilibili.com/img/左旋.gif
+         2.相对路径
+            2.1 ./：当前目录，如：./img/左旋.gif
+            2.2 ../：上级目录，如：../img/左旋.gif
+        alt: 图片加载失败时显示的文字
+        width: 图片宽度-->
+    <img src="img/左旋.gif" alt="图片加载失败" width="50%"></img>
+ </div>
+</body>
+</html>

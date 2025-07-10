@@ -1,0 +1,84 @@
+<!-- 模板 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="GBK">
+    <!-- 设置网页在移动设备上显示的宽度和初始缩放比例  -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作为羔羊的第一个网页</title>
+    <style>
+    /*元素选择器：通过标签名*/
+    span {
+        color: gray;
+    }
+
+    /*类选择器：通过类名*/
+    .cls {
+        color:red;
+    }
+    
+    /*id选择器：通过id名*/
+    #id {
+        color: blue;
+    }
+
+    a {
+        /*去除超链接下的下划线*/
+        text-decoration: none;
+    }
+    </style>
+    <!-- 元素选择器：通过标签名 -->
+    <link rel= "stylesheet" href="css/gray.css">
+</head> 
+<body>
+    <!-- 标题 --> 
+    <h1>作为羔羊的一级标题</h1><!-- 一级标题 -->
+    <h2>作为羔羊的二级标题</h2><!-- 二级标题 -->
+    <h3>作为羔羊的三级标题</h3><!-- 三级标题 -->
+    <h4>作为羔羊的四级标题</h4><!-- 四级标题 -->
+    <h5>作为羔羊的五级标题</h5><!-- 五级标题 -->
+    <h6>作为羔羊的六级标题</h6><!-- 六级标题 -->
+    <br/><!--换行标签-->这是一个换行标签,只是简单地开始新的一行<br/>
+
+
+
+
+    <!--标题样式颜色设置方法-->
+
+    <!-- 方式1：行内样式 -->
+    <span style="color: green;">行内单词样式表示绿色文本</span><br/>
+    <!-- 方式2：十六进制值 -->
+    <span style="color: #FF5733;">十六进制值表示橙色文本（#FF5733）</span><br/>
+    <!-- 方式3：RGB表示:rgb(红0-255，绿0-255，蓝0-255） -->
+    <span style="color: rgb(75, 0, 130);">RGB表示靛蓝色文本</span><br/>
+    <!-- 方式4：RGBA颜色透明度设置方法-->
+    <span style="color: rgba(255, 0, 0, 0.5);">RGBA颜色透明度设置半透明的红色文本</span><br/>
+    <!-- 方式5：引入外部CSS样式表 -->
+    <span>引入外部css灰色gray样式</span><br/>
+    <span class="cls">类选择器 </span><br/><!--用类指定样式-->
+
+    <span> 元素选择器</span> <br/>
+    <span id="id">id选择器</span><br/>
+
+    
+
+
+
+
+<!-- a 超链接标签：
+     href: 链接地址 - url地址
+     target: 打开方式
+         _blank: 新窗口打开
+         _self: 本窗口打开 (默认)
+-->
+    <h2>不指定target打开方式默认为本窗口打开</h2>
+    <a href="https://www.bilibili.com/video/BV1yGydYEE3H/">黑马程序员</a>
+    <h2>self本窗口打开</h2>
+    <a href="https://www.bilibili.com/video/BV1yGydYEE3H/" target="_self">黑马程序员</a>
+    <h2>blank自动跳转新窗口打开</h2>
+    <a href="https://www.bilibili.com/video/BV1yGydYEE3H/" target="_blank">黑马程序员</a>
+
+
+    
+</body>
+</html>

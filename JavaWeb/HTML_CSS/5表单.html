@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- 补充字符编码，避免中文乱码 -->
+    <meta charset="UTF-8"> 
+    <!-- 补充页面标题，增强语义 -->
+    <title>表单标签示例</title> 
+</head>
+<body>
+    <!-- 
+      form表单核心说明（保留截图中的注释内容）：
+      action: 表单数据提交的URL地址  
+      method: 提交方式：  
+        get: 默认，表单数据拼接在URL后（如 /save?name=Tom&age=18）  
+          特点：  
+            1. 隐私数据暴露，不安全；  
+            2. 浏览器对URL长度有限制，不适合大数据量。  
+        post: 表单数据存于请求体提交  
+          特点：  
+            1. 数据隐藏，更安全；  
+            2. 无请求大小限制。  
+
+      注意：表单项必须设置 `name` 属性，否则后端无法接收数据！  
+    -->
+    <form action="/save" method="post">
+        <!-- 1. 基础输入框 -->
+        姓名: <input type="text" name="name" placeholder="请输入姓名"><br><br>
+        密码: <input type="password" name="pwd" placeholder="请输入密码"><br><br><!--placeholder为提示文本-->
+
+        <!-- 2. 单选按钮（radio）：name相同实现互斥 -->
+        性别: 
+        <input type="radio" name="gender" value="male" id="male">
+        <label for="male">男</label><!--label框选用来表示一个整体-->
+        <input type="radio" name="gender" value="female" id="female">
+        <label for="female">女</label><br><br>
+
+        <!-- 3. 复选框（checkbox）：可多选 -->
+        爱好: 
+        <input type="checkbox" name="hobby" value="java" id="java">
+        <label for="java">Java</label>
+        <input type="checkbox" name="hobby" value="game" id="game">
+        <label for="game">游戏</label>
+        <input type="checkbox" name="hobby" value="reading" id="reading">
+        <label for="reading">阅读</label><br><br>
+
+        <!-- 4. 文件上传 -->
+        上传文件: <input type="file" name="file"><br><br>
+
+        <!-- 5. 日期/时间选择 -->
+        出生日期: <input type="date" name="birthdate"><br>
+        会议时间: <input type="time" name="meetingTime"><br>
+        预约时间: <input type="datetime-local" name="appointment"><br><br>
+
+        <!-- 6. 隐藏域（后端用，用户不可见） -->
+        <input type="hidden" name="id" value="123">
+
+        <!-- 7. 下拉列表（select + option） -->
+        所在城市: 
+        <select name="city">
+            <option value="">请选择</option>
+            <option value="beijing">北京</option>
+            <option value="shanghai">上海</option>
+            <option value="guangzhou">广州</option>
+        </select><br><br>
+
+        <!-- 8. 文本域（多行输入） -->
+        个人简介: <br>
+        <textarea name="intro" rows="4" cols="30" placeholder="请输入个人简介"></textarea><br><br>
+
+        <!-- 9. 按钮 -->
+        <input type="submit" value="提交"> <!-- 提交表单 -->
+        <input type="reset" value="重置"> <!-- 重置表单项 -->
+        <input type="button" value="普通按钮" onclick="alert('点击了按钮')"> <!-- 自定义功能按钮 -->
+    </form>
+</body>
+</html>

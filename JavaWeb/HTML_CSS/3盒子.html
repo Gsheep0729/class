@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>盒子模型</title>
+    <style>
+        #div1{
+            width: 400px;/*默认为内容展示区域的宽度*/
+            height: 300px;/*默认为内容展示区域的高度*/
+            background-color: gray;
+            padding: 30px;
+            border:9px solid red;
+            margin: 10px auto;
+        }
+
+    </style>
+</head>
+<body>
+    <div id = "div1">
+        <!--空格会使超过边界时其自动换行-->
+        GGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG、GGGGGG
+    </div>
+
+    <div id = "div2">
+        GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+    </div>
+
+
+    <span>
+        YYYYYYYYYYYYYYYYYYYYYYYYY
+    </span>
+
+    <span>
+        YYYYYYYYYYYYYYYYYYYYYYYYY
+    </span>
+    
+</body>
+</html>
