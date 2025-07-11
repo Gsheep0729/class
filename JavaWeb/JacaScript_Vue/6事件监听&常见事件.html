@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 事件监听与常见事件演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .demo-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .event-box {
+            padding: 20px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        #mouse-tracker {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        #scroll-indicator {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JavaScript 事件监听与常见事件演示</h1>
+    
+    <!-- 鼠标跟踪器 -->
+    <div id="mouse-tracker">鼠标位置: (X, Y)</div>
+    
+    <!-- 滚动指示器 -->
+    <div id="scroll-indicator">滚动位置: 0</div>
+
+    <!-- 1. 事件监听方法演示 -->
+    <div class="section">
+        <h2>1. 事件监听方法</h2>
+        <div class="demo-container">
+            <button id="listener-button">点击我测试事件监听</button>
+            <div id="listener-output"></div>
+            <script>
+                /*
+                这两个变量是后续添加事件监听器的基础，通过它们可以：
+                给按钮绑定点击事件（通过addEventListener）
+                在点击时修改输出容器的内容（通过操作innerHTML）
+                */
+                const listenerButton = document.getElementById('listener-button');/*选择按钮ID*/
+                const listenerOutput = document.getElementById('listener-output');/*选择输出容器ID*/
+                
+                // 使用 addEventListener 添加多个监听器
+
+                //当按钮被点击时，添加两个监听器
+                listenerButton.addEventListener('click', function() {
+                    listenerOutput.innerHTML += '<p>第一个监听器触发</p>';
+                });
+                
+                listenerButton.addEventListener('click', function() {
+                    listenerOutput.innerHTML += '<p>第二个监听器触发</p>';
+                });
+                
+                // 使用旧方法（会覆盖）
+                listenerButton.onclick = function() {
+                    listenerOutput.innerHTML += '<p>旧方法监听器触发（仅覆盖 onclick 自身的监听器）</p>';
+                };
+            </script>
+        </div>
+    </div>
+
+    <!-- 2. 常见事件类型演示 -->
+    <div class="section">
+        <h2>2. 常见事件类型</h2>
+        
+        <!-- 2.1 鼠标事件 -->
+        <div class="demo-container">
+            <h3>2.1 鼠标事件</h3>
+            <button id="mouse-button">点击/按下/释放我</button>
+            <div id="mouse-div" class="event-box">鼠标悬停/移出我</div>
+            <div id="mouse-output"></div>
+            <script>
+                const mouseButton = document.getElementById('mouse-button');
+                const mouseDiv = document.getElementById('mouse-div');
+                const mouseOutput = document.getElementById('mouse-output');
+                
+                mouseButton.addEventListener('click', function() {
+                    mouseOutput.innerHTML += '<p>按钮被点击</p>';
+                });
+                
+                mouseButton.addEventListener('mousedown', function() {
+                    mouseOutput.innerHTML += '<p>鼠标按钮按下</p>';
+                });
+                
+                mouseButton.addEventListener('mouseup', function() {
+                    mouseOutput.innerHTML += '<p>鼠标按钮释放</p>';
+                });
+                
+                mouseDiv.addEventListener('mouseover', function() {
+                    this.style.backgroundColor = 'lightgreen';
+                    mouseOutput.innerHTML += '<p>鼠标进入区域</p>';
+                });
+                
+                mouseDiv.addEventListener('mouseout', function() {
+                    this.style.backgroundColor = '';
+                    mouseOutput.innerHTML += '<p>鼠标离开区域</p>';
+                });
+                
+                // 跟踪鼠标位置
+                document.addEventListener('mousemove', function(event) {
+                    const tracker = document.getElementById('mouse-tracker');
+                    tracker.textContent = `鼠标位置: (${event.clientX}, ${event.clientY})`;
+                });
+            </script>
+        </div>
+        
+        <!-- 2.2 键盘事件 -->
+        <div class="demo-container">
+            <h3>2.2 键盘事件</h3>
+            <input type="text" id="key-input" placeholder="输入文本测试键盘事件">
+            <div id="key-output"></div>
+            <script>
+                const keyInput = document.getElementById('key-input');
+                const keyOutput = document.getElementById('key-output');
+                
+                keyInput.addEventListener('keydown', function(event) {
+                    keyOutput.innerHTML = `<p>按键按下: ${event.key} (代码: ${event.keyCode})</p>`;
+                });
+                
+                keyInput.addEventListener('keyup', function(event) {
+                    keyOutput.innerHTML += `<p>按键释放: ${event.key}</p>`;
+                });
+                
+                keyInput.addEventListener('keypress', function(event) {
+                    keyOutput.innerHTML += `<p>按键按下并释放: ${event.key}</p>`;
+                });
+            </script>
+        </div>
+        
+        <!-- 2.3 表单事件 -->
+        <div class="demo-container">
+            <h3>2.3 表单事件</h3>
+            <form id="form-demo">
+                <input type="text" id="form-input" placeholder="输入内容">
+                <select id="form-select">
+                    <option value="">请选择</option>
+                    <option value="1">选项 1</option>
+                    <option value="2">选项 2</option>
+                </select>
+                <button type="submit">提交表单</button>
+            </form>
+            <div id="form-output"></div>
+            <script>
+                const form = document.getElementById('form-demo');
+                const formInput = document.getElementById('form-input');
+                const formSelect = document.getElementById('form-select');
+                const formOutput = document.getElementById('form-output');
+                
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // 阻止表单提交
+                    formOutput.innerHTML = '<p>表单提交被阻止</p>';
+                });
+                
+                formInput.addEventListener('input', function() {
+                    formOutput.innerHTML = `<p>输入内容: ${this.value}</p>`;
+                });
+                
+                formSelect.addEventListener('change', function() {
+                    formOutput.innerHTML = `<p>选择项改变为: ${this.value}</p>`;
+                });
+            </script>
+        </div>
+        
+        <!-- 2.4 窗口事件 -->
+        <div class="demo-container">
+            <h3>2.4 窗口事件</h3>
+            <div id="window-output"></div>
+            <script>
+                const windowOutput = document.getElementById('window-output');
+                
+                // 页面加载完成事件
+                window.addEventListener('load', function() {
+                    windowOutput.innerHTML += '<p>页面加载完成</p>';
+                });
+                
+                // 窗口大小改变事件
+                window.addEventListener('resize', function() {
+                    windowOutput.innerHTML = `<p>窗口大小改变为: ${window.innerWidth}x${window.innerHeight}</p>`;
+                });
+                
+                // 滚动事件
+                window.addEventListener('scroll', function() {
+                    const scrollIndicator = document.getElementById('scroll-indicator');
+                    scrollIndicator.textContent = `滚动位置: ${window.scrollY}`;
+                });
+            </script>
+        </div>
+    </div>
+
+    <!-- 3. 事件对象演示 -->
+    <div class="section">
+        <h2>3. 事件对象</h2>
+        <div class="demo-container">
+            <button id="event-object-button">点击查看事件对象信息</button>
+            <div id="event-object-output"></div>
+            <script>
+                const eventButton = document.getElementById('event-object-button');
+                const eventOutput = document.getElementById('event-object-output');
+                
+                eventButton.addEventListener('click', function(event) {
+                    eventOutput.innerHTML = `
+                        <p>事件类型: ${event.type}</p>
+                        <p>触发元素: ${event.target.tagName}</p>
+                        <p>鼠标位置: (${event.clientX}, ${event.clientY})</p>
+                        <p>按键: ${event.button}</p>
+                        <p>是否 Ctrl 键: ${event.ctrlKey}</p>
+                    `;
+                });
+            </script>
+        </div>
+    </div>
+
+    <!-- 4. 事件冒泡和捕获演示 -->
+    <div class="section">
+        <h2>4. 事件冒泡和捕获</h2>
+        <div class="demo-container">
+            <div id="outer-box" class="event-box" style="background-color: lightblue;">
+                外层盒子 (点击我)
+                <div id="middle-box" class="event-box" style="background-color: lightgreen;">
+                    中间盒子 (点击我)
+                    <div id="inner-box" class="event-box" style="background-color: lightcoral;">
+                        内层盒子 (点击我)
+                    </div>
+                </div>
+            </div>
+            <div id="propagation-output"></div>
+            <script>
+                const outerBox = document.getElementById('outer-box');
+                const middleBox = document.getElementById('middle-box');
+                const innerBox = document.getElementById('inner-box');
+                const propagationOutput = document.getElementById('propagation-output');
+                
+                // 冒泡阶段监听器 (useCapture = false)
+                outerBox.addEventListener('click', function() {
+                    propagationOutput.innerHTML += '<p>外层盒子 - 冒泡阶段</p>';
+                }, false);
+                
+                middleBox.addEventListener('click', function() {
+                    propagationOutput.innerHTML += '<p>中间盒子 - 冒泡阶段</p>';
+                }, false);
+                
+                innerBox.addEventListener('click', function() {
+                    propagationOutput.innerHTML += '<p>内层盒子 - 冒泡阶段</p>';
+                }, false);
+                
+                // 捕获阶段监听器 (useCapture = true)
+                outerBox.addEventListener('click', function() {
+                    propagationOutput.innerHTML += '<p>外层盒子 - 捕获阶段</p>';
+                }, true);
+                
+                middleBox.addEventListener('click', function() {
+                    propagationOutput.innerHTML += '<p>中间盒子 - 捕获阶段</p>';
+                }, true);
+                
+                innerBox.addEventListener('click', function() {
+                    propagationOutput.innerHTML += '<p>内层盒子 - 捕获阶段</p>';
+                }, true);
+            </script>
+        </div>
+    </div>
+
+    <!-- 5. 阻止事件传播和默认行为 -->
+    <div class="section">
+        <h2>5. 阻止事件传播和默认行为</h2>
+        <div class="demo-container">
+            <h3>5.1 阻止事件传播</h3>
+            <div id="parent-box" class="event-box" style="background-color: lightblue;">
+                父盒子
+                <button id="child-button">子按钮 (点击我)</button>
+            </div>
+            <div id="stop-propagation-output"></div>
+            
+            <h3>5.2 阻止默认行为</h3>
+            <a id="prevent-link" href="https://example.com">点击我（默认跳转被阻止）</a>
+            <div id="prevent-default-output"></div>
+            
+            <script>
+                // 5.1 阻止事件传播
+                const parentBox = document.getElementById('parent-box');
+                const childButton = document.getElementById('child-button');
+                const stopPropagationOutput = document.getElementById('stop-propagation-output');
+                
+                parentBox.addEventListener('click', function() {
+                    propagationOutput.innerHTML += '<p>父盒子被点击</p>';
+                });
+                
+                childButton.addEventListener('click', function(event) {
+                    propagationOutput.innerHTML += '<p>子按钮被点击，事件传播被阻止</p>';
+                    event.stopPropagation(); // 阻止事件传播到父元素
+                });
+                
+                // 5.2 阻止默认行为
+                const preventLink = document.getElementById('prevent-link');
+                const defaultOutput = document.getElementById('prevent-default-output');
+                
+                preventLink.addEventListener('click', function(event) {
+                    event.preventDefault(); // 阻止链接跳转
+                    defaultOutput.innerHTML = '<p>链接点击默认行为被阻止</p>';
+                });
+            </script>
+        </div>
+    </div>
+
+    <!-- 6. 事件委托演示 -->
+    <div class="section">
+        <h2>6. 事件委托</h2>
+        <div class="demo-container">
+            <h3>6.1 列表项点击事件委托</h3>
+            <ul id="delegation-list">
+                <li>列表项 1</li>
+                <li>列表项 2</li>
+                <li>列表项 3</li>
+            </ul>
+            <button id="add-item-button">添加新列表项</button>
+            <div id="delegation-output"></div>
+            
+            <h3>6.2 动态元素事件委托</h3>
+            <div id="dynamic-container"></div>
+            <button id="add-button">添加按钮</button>
+            
+            <script>
+                // 6.1 列表项点击事件委托
+                const list = document.getElementById('delegation-list');
+                const addItemButton = document.getElementById('add-item-button');
+                const delegationOutput = document.getElementById('delegation-output');
+                
+                // 在父元素上监听点击事件
+                list.addEventListener('click', function(event) {
+                    if (event.target.tagName === 'LI') {
+                        delegationOutput.innerHTML = `<p>点击了列表项: ${event.target.textContent}</p>`;
+                        event.target.style.backgroundColor = 'yellow';
+                        
+                        // 3秒后恢复背景色
+                        setTimeout(() => {
+                            event.target.style.backgroundColor = '';
+                        }, 3000);
+                    }
+                });
+                
+                // 动态添加列表项
+                addItemButton.addEventListener('click', function() {
+                    const newItem = document.createElement('li');
+                    newItem.textContent = `列表项 ${list.children.length + 1}`;
+                    list.appendChild(newItem);
+                });
+                
+                // 6.2 动态元素事件委托
+                const container = document.getElementById('dynamic-container');
+                const addButton = document.getElementById('add-button');
+                
+                // 在容器上监听按钮点击事件
+                container.addEventListener('click', function(event) {
+                    if (event.target.tagName === 'BUTTON') {
+                        alert(`点击了动态添加的按钮: ${event.target.textContent}`);
+                    }
+                });
+                
+                // 添加动态按钮
+                addButton.addEventListener('click', function() {
+                    const button = document.createElement('button');
+                    button.textContent = `按钮 ${container.children.length + 1}`;
+                    container.appendChild(button);
+                });
+            </script>
+        </div>
+    </div>
+
+    <button id="myButton">点击我</button>
+    <div id="output"></div>
+
+    <!-- 引用外部JS文件 -->
+    <script src="main.js"></script>
+</body>
+</html>

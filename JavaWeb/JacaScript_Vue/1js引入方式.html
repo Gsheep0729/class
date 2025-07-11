@@ -1,15 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JS���뷽ʽ</title>
-</head>
-<body>
+    <title>JS引入方式示例</title>
+    <!-- 内部脚本写法1：放在<head>里（风险：可能操作未加载的DOM） -->
     <script>
-        //
-        alert('hello world')
+        // 若此时操作<body>里的元素，会报错（元素还没渲染）
+        console.log("头部脚本执行");
+
+        // 尝试在头部脚本中操作未加载的元素
+        try {
+            const headTitle = document.getElementById('head-title');
+            headTitle.textContent = "头部脚本修改标题";
+        } catch (error) {
+            console.error('头部脚本操作元素时出错:', error.message);
+        }
     </script>
-    
+
+    <!-- 内联脚本示例 -->
+    <style>
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="head-title">Hello, this is a title for head script test</h1>
+    <h1 id="body-title">Hello, this is a title for body script test</h1>
+    <h1 id="external-title">Hello, this is a title for external script test</h1>
+
+    <!-- 内联脚本 -->
+    <button onclick="alert('内联脚本触发弹窗')">点击我触发内联脚本</button>
+
+    <!-- 内部脚本写法2：推荐放在<body>底部（优势：DOM已加载，可安全操作） -->
+    <script>
+        // 能正常找到h1元素
+        const bodyTitle = document.getElementById('body-title');
+        if (bodyTitle) {
+            bodyTitle.textContent = "内部脚本修改标题";
+        }
+    </script>
+
+    <!-- 外部脚本 -->
+    <script src="./main.js"></script>
 </body>
+
 </html>

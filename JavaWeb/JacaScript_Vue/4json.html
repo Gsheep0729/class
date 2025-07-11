@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JSON 示例</title>
+</head>
+<body>
+    <h3>打开浏览器控制台（F12）查看输出结果</h3>
+
+    <script>
+        // ==================== 1. JSON 语法示例 ====================
+        console.log("\n===== 1. JSON 语法示例 =====");
+        
+        // 1.1 简单 JSON 对象
+        const jsonObject = {
+            "name": "Alice",
+            "age": 25,
+            "isStudent": true,
+            "hobbies": ["reading", "coding", "traveling"],
+            "address": {
+                "city": "Beijing",
+                "zipCode": "100000"
+            }
+        };
+        
+        // 1.2 错误的 JSON 语法（对比正确语法）
+        const invalidJson = {
+            name: "Bob", // 错误：键没有使用双引号
+            'age': 30,   // 错误：字符串使用了单引号
+            salary: 10000, // 错误：如果作为 JSON 字符串，需要双引号
+            "interests": ["music"],  // 错误：数组元素未闭合
+        };
+        
+        // 1.3 正确的 JSON 字符串格式
+        const validJsonString = '{"name":"Charlie","age":35,"isMarried":false}';
+
+
+        // ==================== 2. JavaScript 对象与 JSON 互转 ====================
+        console.log("\n===== 2. JavaScript 对象与 JSON 互转 =====");
+        
+        // 2.1 JavaScript 对象 → JSON 字符串
+        const person = {
+            name: "David",
+            age: 40,
+            skills: ["JavaScript", "React", "Node.js"],
+            contact: {
+                email: "david@example.com",
+                phone: "123-456-7890"
+            }
+        };
+        
+        // 使用 JSON.stringify() 转换
+        const jsonStr = JSON.stringify(person);
+        console.log("转换后的 JSON 字符串：", jsonStr);
+        // 输出: {"name":"David","age":40,"skills":["JavaScript","React","Node.js"],"contact":{"email":"david@example.com","phone":"123-456-7890"}}
+        
+        // 带缩进的格式化输出
+        const formattedJsonStr = JSON.stringify(person, null, 10);
+        console.log("格式化后的 JSON 字符串：\n", formattedJsonStr);
+        
+        // 过滤属性（只包含 name 和 age）
+        const filteredJsonStr = JSON.stringify(person, ["name", "age"], 5);
+        console.log("过滤后的 JSON 字符串：\n", filteredJsonStr);
+        
+        // 使用 replacer 函数自定义转换
+        /*
+        replacer函数是JSON.stringify()方法中的一个可选参数，
+        用于在将对象转换为JSON字符串时对属性值进行过滤或转换，其核心作用如下：
+        1. 如果replacer参数是一个函数，则该函数将接收两个参数：属性名和属性值，
+           并返回一个转换后的值。
+        2. 如果replacer参数是一个数组，则该数组中的元素将作为属性名，
+           只包含数组中的属性名对应的属性值。
+        3. 如果replacer参数是一个空数组，则将返回一个空对象。
+        4. 如果replacer参数是一个非数组对象，则将返回一个包含该对象所有属性的JSON字符串
+
+        */
+        const customJsonStr = JSON.stringify(person, (key, value) => {
+            if (key === "age") {
+                return value + 5; // 将 age 增加 5
+            }
+            return value;
+        }, 5);
+        console.log("自定义转换后的 JSON 字符串：\n", customJsonStr);
+        
+        
+
+        
+        // 2.2 JSON 字符串 → JavaScript 对象
+        const jsonString = '{"name":"Eve","age":28,"pets":["cat","dog"]}';
+        
+        // 使用 JSON.parse() 转换
+        const parsedObj = JSON.parse(jsonString);
+        console.log("解析后的 JavaScript 对象：", parsedObj);
+        console.log("访问解析后的属性：", parsedObj.pets[0]); // 输出: cat
+        
+        // 解析包含日期的 JSON（JSON 本身不支持日期，需手动转换）
+        const jsonWithDate = '{"event":"birthday","date":"2023-01-15"}';
+        const parsedWithDate = JSON.parse(jsonWithDate, (key, value) => {
+            if (key === "date") {
+                return new Date(value); // 将字符串转换为 Date 对象
+            }
+            return value;
+        });
+        console.log("解析包含日期的 JSON：", parsedWithDate.date.getFullYear()); // 输出: 2023
+
+
+        // ==================== 3. JSON 数据交换场景 ====================
+        console.log("\n===== 3. JSON 数据交换场景 =====");
+        
+        // 3.1 模拟从服务器接收 JSON 数据
+        const mockServerResponse = '{"status":"success","data":{"users":[{"id":1,"name":"User1"},{"id":2,"name":"User2"}]}}';
+        
+        // 解析服务器响应
+        const serverData = JSON.parse(mockServerResponse);
+        console.log("服务器返回的用户列表：", serverData.data.users);
+        
+        // 3.2 发送 JSON 数据到服务器（模拟）
+        const newUser = {
+            name: "New User",
+            email: "newuser@example.com",
+            role: "guest"
+        };
+        
+        // 转换为 JSON 字符串发送
+        const userJsonStr = JSON.stringify(newUser);
+        console.log("准备发送到服务器的 JSON 数据：", userJsonStr);
+        
+        // 模拟发送请求（实际项目中使用 fetch 或 AJAX）
+        function sendDataToServer(data) {
+            // 这里只是模拟，实际会发送 HTTP 请求
+            console.log("模拟发送数据到服务器：", data);
+            return { status: "received", data: data };
+        }
+        
+        const serverResponse = sendDataToServer(userJsonStr);
+        console.log("服务器响应：", serverResponse);
+
+
+        // ==================== 4. JSON 注意事项 ====================
+        console.log("\n===== 4. JSON 注意事项 =====");
+        
+        // 4.1 JSON 不支持函数
+        const objWithFunction = {
+            name: "Function User",
+            greet: function() {
+                return "Hello!";
+            }
+        };
+        
+        const jsonWithoutFunction = JSON.stringify(objWithFunction);
+        console.log("包含函数的对象转换为 JSON：", jsonWithoutFunction);
+        // 输出: {"name":"Function User"}（函数被忽略）
+        
+        // 4.2 JSON 不支持 undefined
+        const objWithUndefined = {
+            name: "Undefined User",
+            age: undefined
+        };
+        
+        const jsonWithoutUndefined = JSON.stringify(objWithUndefined);
+        console.log("包含 undefined 的对象转换为 JSON：", jsonWithoutUndefined);
+        // 输出: {"name":"Undefined User"}（undefined 被忽略）
+        
+        // 4.3 处理循环引用（会报错）
+        const circularObj = { name: "Circular" };
+        circularObj.self = circularObj; // 创建循环引用
+        
+        try {
+            const circularJson = JSON.stringify(circularObj);
+            console.log("循环引用对象转换为 JSON：", circularJson);
+        } catch (error) {
+            console.error("循环引用错误：", error.message);
+            // 输出: Converting circular structure to JSON
+        }
+    </script>
+</body>
+</html>

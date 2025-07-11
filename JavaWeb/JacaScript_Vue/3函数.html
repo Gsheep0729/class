@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JavaScript 函数示例</title>
+</head>
+<body>
+    <h3>打开浏览器控制台（F12）查看输出结果</h3>
+
+    <script>
+        // ==================== 1. 函数定义 ====================
+        console.log("\n===== 1. 函数定义 =====");
+        
+        // 1.1 函数声明（会被提升，可以在定义前调用）
+        console.log(add(3, 4)); // 输出 7（函数声明会被提升）
+        function add(a, b) {
+            return a + b;
+        }
+        
+        // 1.2 函数表达式（不会被提升，必须在定义后调用）
+        // console.log(subtract(5, 2)); // 报错：subtract 未定义
+        const subtract = function(a, b) {
+            return a - b;
+        };
+        console.log(subtract(5, 2)); // 输出 3
+        
+        // 1.3 箭头函数（ES6 简洁语法）
+        const multiply = (a, b) => a * b;
+        console.log(multiply(2, 6)); // 输出 12
+        
+        // 多行箭头函数需要用花括号和 return
+        const divide = (a, b) => {
+            if (b === 0) return "Cannot divide by zero";
+            return a / b;
+        };
+        console.log(divide(10, 2)); // 输出 5
+
+
+        // ==================== 2. 函数参数 ====================
+        console.log("\n===== 2. 函数参数 =====");
+        
+        // 2.1 默认参数（ES6）
+        function greet(name = "Guest") {/*无参数时，使用默认值*/
+            return `Hello, ${name}!`;
+        }
+        console.log(greet()); // 输出 "Hello, Guest!"
+        console.log(greet("Alice")); // 输出 "Hello, Alice!"
+        
+        // 2.2 剩余参数（...args）
+        function sum(...numbers) {
+            /*
+        这段代码使用数组的reduce()方法计算所有元素的总和：
+        1.numbers.reduce()遍历数组
+        2.箭头函数(total, num) => total + num将每个元素累加到total
+        3.初始值0作为累加起始值 最终返回数组元素的累加结果。
+            */
+            return numbers.reduce((total, num) => total + num, 0);
+        }
+        console.log(sum(1, 2, 3, 4)); // 输出 10
+        console.log(sum(5, 6)); // 输出 11
+
+
+        // ==================== 3. 函数调用方式 ====================
+        console.log("\n===== 3. 函数调用方式 =====");
+        
+        // 3.1 普通调用
+        function sayHi() {
+            console.log("Hi!");
+        }
+        sayHi(); // 输出 "Hi!"
+        
+        // 3.2 方法调用（作为对象的属性）
+        const person = {
+            name: "Bob",
+            greet: function() {
+                console.log(`Hello, my name is ${this.name}`);
+            }
+        };
+        person.greet(); // 输出 "Hello, my name is Bob"
+        
+        // 3.3 构造函数调用
+        function Animal(type) {
+            this.type = type;
+            this.speak = function() {
+                console.log(`${this.type} makes a sound`);
+            };
+        }
+        const dog = new Animal("Dog");
+        dog.speak(); // 输出 "Dog makes a sound"
+        
+        // 3.4 call、apply、bind /* 函数的 this 指向问题 */
+        function introduce(city, country) {
+            console.log(`Hi, I'm ${this.name} from ${city}, ${country}`);
+        }
+        const user = { name: "Charlie" };
+        
+        // call：指定 this 值并传递参数
+        introduce.call(user, "New York", "USA"); // 输出 "Hi, I'm Charlie from New York, USA"
+        
+        // apply：类似 call，但参数以数组形式传递
+        introduce.apply(user, ["London", "UK"]); // 输出 "Hi, I'm Charlie from London, UK"
+        
+        // bind：创建一个新函数，绑定 this 值
+        const boundIntroduce = introduce.bind(user, "Paris", "France");
+        boundIntroduce(); // 输出 "Hi, I'm Charlie from Paris, France"
+
+
+        // ==================== 4. 作用域与闭包 ====================
+        console.log("\n===== 4. 作用域与闭包 =====");
+        
+        // 4.1 函数作用域
+        function scopeExample() {
+            const innerVar = "Inside function";
+            console.log(innerVar); // 输出 "Inside function"
+        }
+        scopeExample();
+        // console.log(innerVar); // 报错：innerVar 未定义
+        
+        // 4.2 闭包：内部函数访问外部函数的变量
+        function outer() {
+            const message = "Hello from outer";
+            function inner() {
+                console.log(message);
+            }
+            return inner;
+        }
+        const closure = outer();
+        /*变量message 是外部函数的变量，在 inner 函数内部被访问。*/
+        closure(); // 输出 "Hello from outer"
+        
+        // 闭包示例2：计数器
+        function createCounter() {
+            let count = 0;
+            return {
+                increment: () => count++,
+                getCount: () => count
+            };
+        }
+        const counter = createCounter();
+        console.log(counter.getCount()); // 输出 0
+        counter.increment();
+        counter.increment();
+        console.log(counter.getCount()); // 输出 2
+
+
+        // ==================== 5. 递归函数 ====================
+        console.log("\n===== 5. 递归函数 =====");
+        
+        // 5.1 阶乘计算
+        function factorial(n) {
+            if (n === 0) return 1;
+            return n * factorial(n - 1);
+        }
+        console.log(factorial(5)); // 输出 120
+        
+        // 5.2 斐波那契数列
+        function fibonacci(n) {
+            if (n <= 1) return n;
+            return fibonacci(n - 1) + fibonacci(n - 2);
+        }
+        console.log(fibonacci(6)); // 输出 8（数列：0, 1, 1, 2, 3, 5, 8）
+
+
+        // ==================== 6. 高阶函数 ====================
+        console.log("\n===== 6. 高阶函数 =====");
+        
+        // 6.1 函数作为参数（回调函数）
+        function processArray(arr, callback) {
+            const result = [];
+            for (let i = 0; i < arr.length; i++) {
+                result.push(callback(arr[i]));
+            }
+            return result;
+        }
+        const numbers = [1, 2, 3, 4];
+        const squared = processArray(numbers, num => num * num);
+        console.log(squared); // 输出 [1, 4, 9, 16]
+        
+        // 6.2 函数作为返回值
+        function multiplier(factor) {
+            return num => num * factor;
+        }
+        const double = multiplier(2);
+        const triple = multiplier(3);
+        console.log(double(5)); // 输出 10
+        console.log(triple(5)); // 输出 15
+
+
+        // ==================== 7. 立即执行函数表达式（IIFE） ====================
+        console.log("\n===== 7. IIFE =====");
+        
+        (function() {
+            const privateVar = "This is private";
+            console.log(privateVar); // 输出 "This is private"
+        })();
+        
+        // 无法访问 IIFE 内部的变量
+        // console.log(privateVar); // 报错：privateVar 未定义
+    </script>
+</body>
+</html>
